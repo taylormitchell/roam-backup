@@ -16,6 +16,9 @@ const puppeteer = require("puppeteer");
 
 const generateExport = async () => {
   const browser = await puppeteer.launch();
+  // {
+  //     args: ['--remote-debugging-port=9222']
+  //   }
   const page = await browser.newPage();
   try {
     await page._client.send("Page.setDownloadBehavior", {
@@ -82,13 +85,13 @@ const generateExport = async () => {
 
     console.log("Created export");
 
-    console.log("Waiting five seconds for it to download");
-    await page.waitFor(5000);
+    console.log("Waiting 15 seconds for it to download");
+    await page.waitFor(15000);
   } catch (err) {
     console.error("Something went wrong!");
     console.error(err);
 
-    await page.screenshot({ path: "error.png" });
+    await page.screenshot({path: "error.png"});
   }
   await browser.close();
 };
@@ -111,7 +114,7 @@ const uploadToS3 = async filename => {
   }
 };
 
-const main = async function() {
+const main = async function () {
   await generateExport();
   const files = glob.sync("*.zip");
   const filename = files[0];
