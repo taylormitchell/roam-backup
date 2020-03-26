@@ -14,11 +14,16 @@ const fs = require("fs");
 const glob = require("glob");
 const puppeteer = require("puppeteer");
 
+async function waitAndClick(page, selector) {
+  await page.waitForSelector(selector);
+  await page.click(selector);
+}
+
 const generateExport = async () => {
   const browser = await puppeteer.launch();
-  // {
-  //     args: ['--remote-debugging-port=9222']
-  //   }
+    // {
+    //   args: ['--remote-debugging-port=9222']
+    // })
   const page = await browser.newPage();
   try {
     await page._client.send("Page.setDownloadBehavior", {
@@ -27,64 +32,26 @@ const generateExport = async () => {
     });
 
     await page.goto("https://roamresearch.com/#/signin");
-
     console.log("Logging into Roam");
-
     await page.focus('[name="email"]');
     await page.keyboard.type(process.env.ROAM_EMAIL);
-
     await page.focus('[name="password"]');
     await page.keyboard.type(process.env.ROAM_PASSWORD);
-
     await page.$eval(".bp3-button", el => el.click());
 
     await page.waitFor(5000);
 
     console.log("Successfully logged in");
-
-    await page.waitForSelector(
-      ".flex-h-box > div > .bp3-popover-wrapper > .bp3-popover-target > .bp3-small"
-    );
-    await page.click(
-      ".flex-h-box > div > .bp3-popover-wrapper > .bp3-popover-target > .bp3-small"
-    );
-
+    await waitAndClick(page, ".flex-h-box > div > .bp3-popover-wrapper > .bp3-popover-target > .bp3-small"); // Options menu
     console.log("Opening Export menu");
-
-    await page.waitForSelector(
-      ".bp3-popover-content > .bp3-menu > li:nth-child(3) > .bp3-menu-item > .bp3-text-overflow-ellipsis"
-    );
-    await page.click(
-      ".bp3-popover-content > .bp3-menu > li:nth-child(3) > .bp3-menu-item > .bp3-text-overflow-ellipsis"
-    );
-
-    await page.waitForSelector(
-      ".bp3-popover-wrapper > .bp3-popover-target > div > .bp3-button > .bp3-button-text"
-    );
-    await page.click(
-      ".bp3-popover-wrapper > .bp3-popover-target > div > .bp3-button > .bp3-button-text"
-    );
-
-    console.log("Selecting JSON export");
-
-    await page.waitForSelector(
-      "div > .bp3-menu > li > .bp3-menu-item > .bp3-text-overflow-ellipsis"
-    );
-    await page.click(
-      "div > .bp3-menu > li > .bp3-menu-item > .bp3-text-overflow-ellipsis"
-    );
-
+    await waitAndClick(page, ".bp3-popover-content > .bp3-menu > li:nth-child(3) > .bp3-menu-item > .bp3-text-overflow-ellipsis"); // "Export" list item
+    // await waitAndClick(page, ".bp3-popover-wrapper > .bp3-popover-target > div > .bp3-button > .bp3-button-text") // "Markdown"
+    // console.log("Selecting JSON export");
+    // await waitAndClick(page, "div > .bp3-menu > li > .bp3-menu-item > .bp3-text-overflow-ellipsis") // "JSON"
+    // console.log("Waiting for switch to JSON format")
+    // // await page.waitFor(5000);
     console.log("Creating export");
-
-    await page.waitForSelector(
-      ".bp3-dialog-container > .bp3-dialog > div > .flex-h-box > .bp3-intent-primary"
-    );
-    await page.click(
-      ".bp3-dialog-container > .bp3-dialog > div > .flex-h-box > .bp3-intent-primary"
-    );
-
-    console.log("Created export");
-
+    await waitAndClick(page, ".bp3-dialog-container > .bp3-dialog > div > .flex-h-box > .bp3-intent-primary") // "Export" button
     console.log("Waiting 15 seconds for it to download");
     await page.waitFor(15000);
   } catch (err) {
