@@ -10,6 +10,11 @@ const s3 = new AWS.S3({
   secretAccessKey: process.env.AWS_ACCESS_KEY_SECRET
 });
 
+
+// Use application default credentials for GCS.
+const {Storage} = require('@google-cloud/storage');
+const storage = new Storage();
+
 const fs = require("fs");
 const glob = require("glob");
 const puppeteer = require("puppeteer");
@@ -45,11 +50,11 @@ const generateExport = async () => {
     await waitAndClick(page, ".flex-h-box > div > .bp3-popover-wrapper > .bp3-popover-target > .bp3-small"); // Options menu
     console.log("Opening Export menu");
     await waitAndClick(page, ".bp3-popover-content > .bp3-menu > li:nth-child(3) > .bp3-menu-item > .bp3-text-overflow-ellipsis"); // "Export" list item
-    // await waitAndClick(page, ".bp3-popover-wrapper > .bp3-popover-target > div > .bp3-button > .bp3-button-text") // "Markdown"
-    // console.log("Selecting JSON export");
+    await waitAndClick(page, ".bp3-popover-wrapper > .bp3-popover-target > div > .bp3-button > .bp3-button-text") // "Markdown"
+    console.log("Selecting MD export");
     // await waitAndClick(page, "div > .bp3-menu > li > .bp3-menu-item > .bp3-text-overflow-ellipsis") // "JSON"
-    // console.log("Waiting for switch to JSON format")
-    // // await page.waitFor(5000);
+    console.log("Waiting for switch to MD format")
+    await page.waitFor(5000);
     console.log("Creating export");
     await waitAndClick(page, ".bp3-dialog-container > .bp3-dialog > div > .flex-h-box > .bp3-intent-primary") // "Export" button
     console.log("Waiting 15 seconds for it to download");
@@ -81,15 +86,36 @@ const uploadToS3 = async filename => {
   }
 };
 
+const uploadToGCS = async filename => {
+  try {
+    const fileContent = fs.readFileSync(filename);
+    console.log(`Uploading to ${`process.env.GCS_BUCKET_NAME`}`)
+    const bucket = storage.bucket(process.env.GCS_BUCKET_NAME);
+    const data = await bucket.upload(filename)
+    console.log(`Successfully backed up Roam data to GCS: ${data[0].metadata.selfLink}`);
+  } catch (err) {
+    console.error("Something went wrong while uploading to GCS");
+    console.error(err);
+  }
+};
+
 const main = async function () {
+  if (!process.env.STORAGE_OPT){
+    console.log("STORAGE_OPT must be set to `aws` or `gcp`")
+    return
+  }
   await generateExport();
   const files = glob.sync("*.zip");
   const filename = files[0];
   if (!filename) {
     throw new Error("Couldn't find a file to upload, aborting");
   }
-  console.log(`Uploading ${filename} to S3`);
-  await uploadToS3(filename);
+  console.log(`Uploading ${filename}`);
+  if (process.env.STORAGE_OPT == "aws") {
+    await uploadToS3(filename);
+  } else {
+    await uploadToGCS(filename);
+  }
 };
 
 main();

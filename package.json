@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@google-cloud/storage": "^4.7.0",
     "aws-sdk": "^2.633.0",
     "dotenv": "^8.2.0",
+    "fast-crc32c": "^2.0.0",
     "fs": "0.0.1-security",
     "glob": "^7.1.6",
     "puppeteer": "^2.1.1"

@@ -13,6 +13,14 @@ jobs:
     name: Backup
     steps:
       - uses: actions/checkout@v2
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '285.0.0'
+          project_id: ${{ secrets.gcpProjectId }}
+          service_account_email: ${{ secrets.gcpSaEmail }}
+          service_account_key: ${{ secrets.gcpSaKey }}
+          export_default_credentials: true
+      - run: gcloud info
       - uses: actions/setup-node@v1
         with:
           node-version: "10.x"
@@ -24,3 +32,5 @@ jobs:
           AWS_BUCKET_NAME: ${{ secrets.awsBucketName }}
           AWS_ACCESS_KEY_ID: ${{ secrets.awsAccessKeyId }}
           AWS_ACCESS_KEY_SECRET: ${{ secrets.awsAccessKeySecret }}
+          GCS_BUCKET_NAME: ${{ secrets.gcsBucketName }}
+          STORAGE_OPT: ${{ secrets.storageOpt }}

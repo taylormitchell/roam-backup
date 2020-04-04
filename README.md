@@ -29,6 +29,7 @@ This is necessary because Actions get disabled when you fork a repository. Do th
   - Resource: Click on "Add ARN", and specify the Bucket Name, you can select "Any" for Object Name
   - Review and save the policy, then attach it to your user
 - Note the `awsAccessKeyId` and `awsAccessKeySecret` of the user for step #4.
+- If using Google Cloud Platform, set up a Google Cloud Storage Bucket as well a a service account authorized to use the bucket. Take note of the following: `GCP_SA_KEY`, `GCP_SA_EMAIL`, `GCS_BUCKET_NAME`.
 
 #### 4. Set your repository Secrets
 
@@ -36,9 +37,15 @@ Go to your Github repository's Settings tab, and click on Secrets section on the
 
 - `roamEmail`
 - `roamPassword`
-- `awsBucketName`
-- `awsAccessKeyId`
-- `awsAccessKeySecret`
+- For AWS:
+    + `awsBucketName`
+    + `awsAccessKeyId`
+    + `awsAccessKeySecret`
+- For GCP:
+    + `gcpSaKey`
+    + `gcpSaEmail`
+    + `gcsBucketName`.
+- `storageOpt` should be set to either `aws` or `gcp`.
 
 _Don't worry! Your Roam and AWS credentials will be secure. GitHub [Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets) are encrypted, and provide a convenient methodology for storing secure data in repositories._
 
