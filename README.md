@@ -1,6 +1,6 @@
 # [[`roam-backup`]]
 
-Automate backing up JSON copies of your [Roam Research](https://roamresearch.com) data, using GitHub Actions and AWS S3.
+Automate backing up JSON copies of your [Roam Research](https://roamresearch.com) data, using GitHub Actions and AWS S3/ Google Cloud Storage.
 
 Backups will be generated using Puppeteer and saved into the `backups` folder (`config.backupFolder`, can be changed) of an S3 bucket of your choice.
 
@@ -18,8 +18,9 @@ If you haven't done this before, you'll find the Fork button on the top right of
 
 This is necessary because Actions get disabled when you fork a repository. Do this by tapping on the "Actions" tab in your repository (next to "Pull Requests"), and hit the big green button.
 
-#### 3. Setup an AWS S3 bucket to store your Roam backups
+#### 3. Setup an AWS S3/ Google Cloud Storage bucket to store your Roam backups
 
+##### AWS
 - Ensure you create the AWS S3 bucket manually –– this script will not create the bucket. Note the `awsBucketName` for step #4.
 - Create (or find an existing) user in the AWS console, and note its `awsAccessKeyId` and `awsAccessKeySecret` for step #4.
 - Ensure the user has permissions to upload to an S3 bucket. To do this, you'll need to attach a policy to the user that allows uploading to S3. The simplest way to do this would be to use the existing global policy: `AmazonS3FullAccess`.
@@ -29,7 +30,10 @@ This is necessary because Actions get disabled when you fork a repository. Do th
   - Resource: Click on "Add ARN", and specify the Bucket Name, you can select "Any" for Object Name
   - Review and save the policy, then attach it to your user
 - Note the `awsAccessKeyId` and `awsAccessKeySecret` of the user for step #4.
+
+##### GCP
 - If using Google Cloud Platform, set up a Google Cloud Storage Bucket as well a a service account authorized to use the bucket. Take note of the following: `GCP_SA_KEY`, `GCP_SA_EMAIL`, `GCS_BUCKET_NAME`.
+- I also like to set a [retention policy](https://cloud.google.com/storage/docs/bucket-lock) to move to archival storage anything older than 14 days. This helps keep costs down.
 
 #### 4. Set your repository Secrets
 
@@ -47,7 +51,7 @@ Go to your Github repository's Settings tab, and click on Secrets section on the
     + `gcsBucketName`.
 - `storageOpt` should be set to either `aws` or `gcp`.
 
-_Don't worry! Your Roam and AWS credentials will be secure. GitHub [Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets) are encrypted, and provide a convenient methodology for storing secure data in repositories._
+_Don't worry! Your Roam, AWS and GCP credentials will be secure. GitHub [Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets) are encrypted, and provide a convenient methodology for storing secure data in repositories._
 
 #### 5. Make a commit. It can be any commit, but this will start the process and trigger workflows.
 
