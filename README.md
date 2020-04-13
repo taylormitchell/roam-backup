@@ -64,4 +64,3 @@ _NOTE: This is still fairly WIP, and this is my first project using Puppeteer, s
 Running this project locally should be possible using `.env` - copy `.env.example` to `.env` and fill it in with your own authentication keys. 
 
 The project generates an `error.png` screenshot to capture the current page if something goes wrong, as well as ZIP folders, which are the JSON backups. Running `npm start` will clear any local screenshots and backups, and run the script as it would in the GitHub Actions workflow (`npm start`)
-
